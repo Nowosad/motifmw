@@ -1,0 +1,30 @@
+Package: motifmw
+Title: Local Pattern Analysis in Moving Window
+Version: 0.0.0.9000
+Authors@R: c(
+    person(given = "Jakub", family = "Nowosad", 
+    role = c("aut", "cre"),
+    email = "nowosad.jakub@gmail.com", 
+    comment = c(ORCID = "0000-0002-1057-3721")))
+Description: Describes spatial patterns of categorical raster data for 
+    any defined moving window. 
+    Patterns are described quantitatively using built-in signatures 
+    based on a co-occurrence matrix. 
+License: MIT + file LICENSE
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.2.3
+LinkingTo: 
+    Rcpp,
+    RcppArmadillo,
+    comat
+Imports: 
+    comat,
+    Rcpp,
+    terra
+Suggests: 
+    knitr,
+    rmarkdown,
+    testthat (>= 3.0.0)
+VignetteBuilder: knitr
+Config/testthat/edition: 3

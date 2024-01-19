@@ -1,0 +1,47 @@
+---
+output: github_document
+editor_options: 
+  chunk_output_type: console
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/README-",
+  out.width = "100%"
+)
+```
+
+# motifmw
+
+<!-- badges: start -->
+[![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
+<!-- badges: end -->
+
+The goal of **motifmw** is to describe spatial patterns of categorical raster data for any defined moving window. 
+Patterns are described quantitatively using built-in signatures based on a co-occurrence matrix. 
+
+## Installation
+
+You can install the development version of the package with:
+
+``` r
+# install.packages("remotes")
+remotes::install_github("Nowosad/motifmw")
+```
+
+## Example
+
+```{r}
+library(motifmw)
+library(terra)
+r = rast(matrix(c(rep(1, 23), rep(NA, 3), rep(2, 23)), ncol = 7))
+plot(r)
+w = matrix(1, 3, 3)
+result = lsp_signature_mw(x = r, window = w)
+result
+plot(result)
+```

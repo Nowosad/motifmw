@@ -1,0 +1,6 @@
+^motifmw\.Rproj$
+^\.Rproj\.user$
+^LICENSE\.md$
+^README\.Rmd$
+vignettes/Introduction\.Rmd_$
+data-raw
