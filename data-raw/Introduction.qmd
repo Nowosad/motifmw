@@ -1,12 +1,20 @@
 ---
-title: "Introduction"
+title: "Comparing spatial patterns using moving window approach"
+author: Jakub Nowosad
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Comparing spatial patterns using moving window approach}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
 ---
 
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
-  eval = TRUE
+  fig.width = 6.5#,
+  # fig.height = 5
 )
 ```
 

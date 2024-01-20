@@ -8,6 +8,13 @@
 \description{
 Describes spatial patterns of categorical raster data for any defined moving window. Patterns are described quantitatively using built-in signatures based on a co-occurrence matrix.
 }
+\seealso{
+Useful links:
+\itemize{
+  \item \url{http://jakubnowosad.com/motifmw/}
+}
+
+}
 \author{
 \strong{Maintainer}: Jakub Nowosad \email{nowosad.jakub@gmail.com} (\href{https://orcid.org/0000-0002-1057-3721}{ORCID})
 

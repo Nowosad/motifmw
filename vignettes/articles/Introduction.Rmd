@@ -1,8 +1,10 @@
 ---
-title: "Introduction"
+title: "Comparing spatial patterns using moving window approach"
+author: Jakub Nowosad
+date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Introduction}
+  %\VignetteIndexEntry{Comparing spatial patterns using moving window approach}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -11,7 +13,8 @@ vignette: >
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
-  eval = FALSE
+  fig.width = 6.5#,
+  # fig.height = 5
 )
 ```
 
@@ -37,8 +40,7 @@ coltab(lc18) = coltb
 ```
 
 ```{r}
-plot(lc92)
-plot(lc18)
+plot(c(lc92, lc18))
 ```
 
 ```{r}
@@ -47,8 +49,7 @@ lc18 = crop(lc18, ext(-7e6, -67e5, -13e5, -1e6))
 ```
 
 ```{r}
-plot(lc92)
-plot(lc18)
+plot(c(lc92, lc18))
 ```
 
 ```{r}
@@ -108,4 +109,9 @@ lc_compare1b = spq_compare(lc92sb, lc18sb, dist_fun = "jensen-shannon")
 ```{r}
 plot(c(lc_compare, lc_compare1b))
 plot(c(lc_compare - lc_compare1b))
+```
+
+```{r}
+# c1d1 = resample(c1["dist"], lc_compare)
+# c1d2 = resample(c1["dist"], lc_compare, method = "near")
 ```

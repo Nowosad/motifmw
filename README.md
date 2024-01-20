@@ -7,6 +7,8 @@
 
 [![Lifecycle:
 experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
+[![Codecov test
+coverage](https://codecov.io/gh/Nowosad/motifmw/branch/main/graph/badge.svg)](https://app.codecov.io/gh/Nowosad/motifmw?branch=main)
 <!-- badges: end -->
 
 The goal of **motifmw** is to describe spatial patterns of categorical
@@ -52,3 +54,9 @@ plot(result)
 ```
 
 <img src="man/figures/README-unnamed-chunk-2-2.png" width="100%" />
+
+## Extended example
+
+An extended example shows [how to compare spatial patterns using moving
+window
+approach](https://jakubnowosad.com/motifmw/articles/Introduction.html).
