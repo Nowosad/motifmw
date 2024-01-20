@@ -13,6 +13,8 @@ vignette: >
 
 
 ```r
+# remotes::install_github("nowosad/motifmw")
+# remotes::install_github("nowosad/spquery")
 library(motifmw)
 library(spquery)
 library(terra)
@@ -20,9 +22,6 @@ library(terra)
 
 
 ```r
-library(osfr)
-dir.create("data")
-#> Warning in dir.create("data"): 'data' already exists
 lc92 = rast("https://osf.io/download/tjzwe/")
 lc18 = rast("https://osf.io/download/wdzy6/")
 ```
@@ -40,7 +39,7 @@ coltab(lc18) = coltb
 plot(c(lc92, lc18))
 ```
 
-![plot of chunk unnamed-chunk-4](vignettes/articles/figures/unnamed-chunk-4-1.png)
+![plot of chunk unnamed-chunk-4](figures/unnamed-chunk-4-1.png)
 
 
 ```r
@@ -53,7 +52,7 @@ lc18 = crop(lc18, ext(-7e6, -67e5, -13e5, -1e6))
 plot(c(lc92, lc18))
 ```
 
-![plot of chunk unnamed-chunk-6](vignettes/articles/figures/unnamed-chunk-6-1.png)
+![plot of chunk unnamed-chunk-6](figures/unnamed-chunk-6-1.png)
 
 ## Square window
 
@@ -64,7 +63,7 @@ window = matrix(1, nrow = window_size, ncol = window_size)
 plot(rast(window))
 ```
 
-![plot of chunk unnamed-chunk-7](vignettes/articles/figures/unnamed-chunk-7-1.png)
+![plot of chunk unnamed-chunk-7](figures/unnamed-chunk-7-1.png)
 
 
 ```r
@@ -75,7 +74,7 @@ system.time({
 })
 #> |---------|---------|---------|---------|=========================================                                          |---------|---------|---------|---------|=========================================                                          
 #>    user  system elapsed 
-#> 272.211  24.674 297.589
+#> 276.873  27.191 304.634
 ```
 
 
@@ -83,7 +82,7 @@ system.time({
 plot(lc_compare)
 ```
 
-![plot of chunk unnamed-chunk-9](vignettes/articles/figures/unnamed-chunk-9-1.png)
+![plot of chunk unnamed-chunk-9](figures/unnamed-chunk-9-1.png)
 
 ## Circle window
 
@@ -95,7 +94,7 @@ window2[window2 == 0] = NA
 plot(rast(window2))
 ```
 
-![plot of chunk unnamed-chunk-10](vignettes/articles/figures/unnamed-chunk-10-1.png)
+![plot of chunk unnamed-chunk-10](figures/unnamed-chunk-10-1.png)
 
 
 ```r
@@ -106,7 +105,7 @@ lc_compare2 = spq_compare(lc92s2, lc18s2, dist_fun = "jensen-shannon")
 })
 #> |---------|---------|---------|---------|=========================================                                          |---------|---------|---------|---------|=========================================                                          
 #>    user  system elapsed 
-#> 255.558  32.329 288.484
+#> 256.107  33.083 289.627
 ```
 
 
@@ -114,13 +113,13 @@ lc_compare2 = spq_compare(lc92s2, lc18s2, dist_fun = "jensen-shannon")
 plot(c(lc_compare, lc_compare2))
 ```
 
-![plot of chunk unnamed-chunk-12](vignettes/articles/figures/unnamed-chunk-12-1.png)
+![plot of chunk unnamed-chunk-12](figures/unnamed-chunk-12-1.png)
 
 ```r
 plot(c(lc_compare - lc_compare2))
 ```
 
-![plot of chunk unnamed-chunk-12](vignettes/articles/figures/unnamed-chunk-12-2.png)
+![plot of chunk unnamed-chunk-12](figures/unnamed-chunk-12-2.png)
 
 ## Comparison to the slower approach
 
@@ -141,7 +140,7 @@ lc_compare1b = spq_compare(lc92sb, lc18sb, dist_fun = "jensen-shannon")
 })
 #> |---------|---------|---------|---------|=========================================                                          |---------|---------|---------|---------|=========================================                                          
 #>    user  system elapsed 
-#> 521.889  41.955 565.530
+#> 531.132  51.240 583.975
 ```
 
 
@@ -149,13 +148,13 @@ lc_compare1b = spq_compare(lc92sb, lc18sb, dist_fun = "jensen-shannon")
 plot(c(lc_compare, lc_compare1b))
 ```
 
-![plot of chunk unnamed-chunk-14](vignettes/articles/figures/unnamed-chunk-14-1.png)
+![plot of chunk unnamed-chunk-14](figures/unnamed-chunk-14-1.png)
 
 ```r
 plot(c(lc_compare - lc_compare1b))
 ```
 
-![plot of chunk unnamed-chunk-14](vignettes/articles/figures/unnamed-chunk-14-2.png)
+![plot of chunk unnamed-chunk-14](figures/unnamed-chunk-14-2.png)
 
 
 ```r

@@ -13,21 +13,21 @@ vignette: >
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
-  fig.path = "vignettes/articles/figures/",
+  fig.path = "figures/",
   fig.width = 6.5#,
   # fig.height = 5
 )
 ```
 
 ```{r setup}
+# remotes::install_github("nowosad/motifmw")
+# remotes::install_github("nowosad/spquery")
 library(motifmw)
 library(spquery)
 library(terra)
 ```
 
 ```{r}
-library(osfr)
-dir.create("data")
 lc92 = rast("https://osf.io/download/tjzwe/")
 lc18 = rast("https://osf.io/download/wdzy6/")
 ```
