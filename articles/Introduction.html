@@ -74,14 +74,13 @@ Nowosad</h4>
     
     
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="http://jakubnowosad.com/motifmw/">motifmw</a></span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="co"># remotes::install_github("nowosad/motifmw")</span></span>
+<span><span class="co"># remotes::install_github("nowosad/spquery")</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="http://jakubnowosad.com/motifmw/">motifmw</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">spquery</span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rspatial.org/" class="external-link">terra</a></span><span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://docs.ropensci.org/osfr/" class="external-link">osfr</a></span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/files2.html" class="external-link">dir.create</a></span><span class="op">(</span><span class="st">"data"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Warning in dir.create("data"): 'data' already exists</span></span>
-<span><span class="va">lc92</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/terra/man/rast.html" class="external-link">rast</a></span><span class="op">(</span><span class="st">"https://osf.io/download/tjzwe/"</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">lc92</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/terra/man/rast.html" class="external-link">rast</a></span><span class="op">(</span><span class="st">"https://osf.io/download/tjzwe/"</span><span class="op">)</span></span>
 <span><span class="va">lc18</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/terra/man/rast.html" class="external-link">rast</a></span><span class="op">(</span><span class="st">"https://osf.io/download/wdzy6/"</span><span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">coltb</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.csv</a></span><span class="op">(</span><span class="st">"https://osf.io/download/2qd5k/"</span><span class="op">)</span></span>
@@ -91,7 +90,7 @@ Nowosad</h4>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/terra/man/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">lc92</span>, <span class="va">lc18</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <div class="figure">
-<img src="articles/articles/figures/unnamed-chunk-4-1.png" alt=""><p class="caption">plot of chunk unnamed-chunk-4</p>
+<img src="figures/unnamed-chunk-4-1.png" alt=""><p class="caption">plot of chunk unnamed-chunk-4</p>
 </div>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">lc92</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/terra/man/crop.html" class="external-link">crop</a></span><span class="op">(</span><span class="va">lc92</span>, <span class="fu"><a href="https://rdrr.io/pkg/terra/man/ext.html" class="external-link">ext</a></span><span class="op">(</span><span class="op">-</span><span class="fl">7e6</span>, <span class="op">-</span><span class="fl">67e5</span>, <span class="op">-</span><span class="fl">13e5</span>, <span class="op">-</span><span class="fl">1e6</span><span class="op">)</span><span class="op">)</span></span>
@@ -99,7 +98,7 @@ Nowosad</h4>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/terra/man/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">lc92</span>, <span class="va">lc18</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <div class="figure">
-<img src="articles/articles/figures/unnamed-chunk-6-1.png" alt=""><p class="caption">plot of chunk unnamed-chunk-6</p>
+<img src="figures/unnamed-chunk-6-1.png" alt=""><p class="caption">plot of chunk unnamed-chunk-6</p>
 </div>
 <div class="section level2">
 <h2 id="square-window">Square window<a class="anchor" aria-label="anchor" href="#square-window"></a>
@@ -109,7 +108,7 @@ Nowosad</h4>
 <span><span class="va">window</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fl">1</span>, nrow <span class="op">=</span> <span class="va">window_size</span>, ncol <span class="op">=</span> <span class="va">window_size</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/pkg/terra/man/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/terra/man/rast.html" class="external-link">rast</a></span><span class="op">(</span><span class="va">window</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <div class="figure">
-<img src="articles/articles/figures/unnamed-chunk-7-1.png" alt=""><p class="caption">plot of chunk unnamed-chunk-7</p>
+<img src="figures/unnamed-chunk-7-1.png" alt=""><p class="caption">plot of chunk unnamed-chunk-7</p>
 </div>
 <div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">system.time</span>({</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  lc92s <span class="ot">=</span> motifmw<span class="sc">::</span><span class="fu">lsp_signature_mw</span>(<span class="at">x =</span> lc92, <span class="at">window =</span> window)</span>
@@ -125,11 +124,11 @@ Nowosad</h4>
 <span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a><span class="er">=========================================</span></span>
 <span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>                                          </span>
 <span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    user  system elapsed </span></span>
-<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 272.211  24.674 297.589</span></span></code></pre></div>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 276.873  27.191 304.634</span></span></code></pre></div>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/terra/man/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">lc_compare</span><span class="op">)</span></span></code></pre></div>
 <div class="figure">
-<img src="articles/articles/figures/unnamed-chunk-9-1.png" alt=""><p class="caption">plot of chunk unnamed-chunk-9</p>
+<img src="figures/unnamed-chunk-9-1.png" alt=""><p class="caption">plot of chunk unnamed-chunk-9</p>
 </div>
 </div>
 <div class="section level2">
@@ -141,7 +140,7 @@ Nowosad</h4>
 <span><span class="va">window2</span><span class="op">[</span><span class="va">window2</span> <span class="op">==</span> <span class="fl">0</span><span class="op">]</span> <span class="op">=</span> <span class="cn">NA</span></span>
 <span><span class="fu"><a href="https://rdrr.io/pkg/terra/man/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/terra/man/rast.html" class="external-link">rast</a></span><span class="op">(</span><span class="va">window2</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <div class="figure">
-<img src="articles/articles/figures/unnamed-chunk-10-1.png" alt=""><p class="caption">plot of chunk unnamed-chunk-10</p>
+<img src="figures/unnamed-chunk-10-1.png" alt=""><p class="caption">plot of chunk unnamed-chunk-10</p>
 </div>
 <div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">system.time</span>({</span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>lc92s2 <span class="ot">=</span> <span class="fu">lsp_signature_mw</span>(<span class="at">x =</span> lc92, <span class="at">window =</span> window2)</span>
@@ -157,16 +156,16 @@ Nowosad</h4>
 <span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a><span class="er">=========================================</span></span>
 <span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>                                          </span>
 <span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    user  system elapsed </span></span>
-<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 255.558  32.329 288.484</span></span></code></pre></div>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 256.107  33.083 289.627</span></span></code></pre></div>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/terra/man/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">lc_compare</span>, <span class="va">lc_compare2</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <div class="figure">
-<img src="articles/articles/figures/unnamed-chunk-12-1.png" alt=""><p class="caption">plot of chunk unnamed-chunk-12</p>
+<img src="figures/unnamed-chunk-12-1.png" alt=""><p class="caption">plot of chunk unnamed-chunk-12</p>
 </div>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/terra/man/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">lc_compare</span> <span class="op">-</span> <span class="va">lc_compare2</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <div class="figure">
-<img src="articles/articles/figures/unnamed-chunk-12-2.png" alt=""><p class="caption">plot of chunk unnamed-chunk-12</p>
+<img src="figures/unnamed-chunk-12-2.png" alt=""><p class="caption">plot of chunk unnamed-chunk-12</p>
 </div>
 </div>
 <div class="section level2">
@@ -194,16 +193,16 @@ Nowosad</h4>
 <span id="cb14-20"><a href="#cb14-20" aria-hidden="true" tabindex="-1"></a><span class="er">=========================================</span></span>
 <span id="cb14-21"><a href="#cb14-21" aria-hidden="true" tabindex="-1"></a>                                          </span>
 <span id="cb14-22"><a href="#cb14-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    user  system elapsed </span></span>
-<span id="cb14-23"><a href="#cb14-23" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 521.889  41.955 565.530</span></span></code></pre></div>
+<span id="cb14-23"><a href="#cb14-23" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 531.132  51.240 583.975</span></span></code></pre></div>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/terra/man/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">lc_compare</span>, <span class="va">lc_compare1b</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <div class="figure">
-<img src="articles/articles/figures/unnamed-chunk-14-1.png" alt=""><p class="caption">plot of chunk unnamed-chunk-14</p>
+<img src="figures/unnamed-chunk-14-1.png" alt=""><p class="caption">plot of chunk unnamed-chunk-14</p>
 </div>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/terra/man/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">lc_compare</span> <span class="op">-</span> <span class="va">lc_compare1b</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <div class="figure">
-<img src="articles/articles/figures/unnamed-chunk-14-2.png" alt=""><p class="caption">plot of chunk unnamed-chunk-14</p>
+<img src="figures/unnamed-chunk-14-2.png" alt=""><p class="caption">plot of chunk unnamed-chunk-14</p>
 </div>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># c1d1 = resample(c1["dist"], lc_compare)</span></span>
