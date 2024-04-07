@@ -2,7 +2,8 @@
 title: "Comparing spatial patterns using moving window approach"
 author: Jakub Nowosad
 date: "`r Sys.Date()`"
-output: rmarkdown::html_vignette
+output: 
+  rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Comparing spatial patterns using moving window approach}
   %\VignetteEngine{knitr::rmarkdown}
@@ -10,114 +11,156 @@ vignette: >
 ---
 
 ```{r, include = FALSE}
+# knitr::knit("vignettes/articles/Introduction.Rmd.orig", output = "vignettes/articles/Introduction.Rmd")
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
   fig.path = "figures/",
-  fig.width = 6.5#,
+  fig.cap = "",
+  fig.width = 7.5#,
   # fig.height = 5
 )
+terra::terraOptions(progress = 0)
 ```
 
+The **motifmw** package provides a possibility to calculate the local spatial pattern signature of a raster dataset using a moving window approach. 
+The spatial signature is a vector of numbers that describes the spatial pattern of a raster dataset, which can be used, for example, to compare the spatial patterns of two raster datasets.
+This vignette demonstrates how to use the **motifmw** together with another package called **spquery** to compare the spatial patterns of two land cover raster datasets using a moving window approach.
+
+## Installation
+
+To reproduce the code in this vignette, you need to install just three packages: **motifmw**, **spquery**, and **terra**.
+The first two packages can be installed from GitHub using the `remotes` package, while the **terra** package can be installed from CRAN.
+
+```{r}
+#| eval: false
+remotes::install_github("nowosad/motifmw")
+remotes::install_github("nowosad/spquery")
+```
+
+## Packages and data
+
 ```{r setup}
-# remotes::install_github("nowosad/motifmw")
-# remotes::install_github("nowosad/spquery")
 library(motifmw)
 library(spquery)
 library(terra)
 ```
 
+The **motifmw** approach is suitable for categorical raster datasets.
+Here, we will use two ESA land cover raster datasets: one from 1992 and the other from 2018.
+The datasets and their color tables are available from the Open Science Framework (OSF) repository.
+
 ```{r}
 lc92 = rast("https://osf.io/download/tjzwe/")
 lc18 = rast("https://osf.io/download/wdzy6/")
-```
-
-```{r}
-coltb = read.csv("https://osf.io/download/2qd5k/")
-coltb = coltb[c("value", "color")]
+coltb = read.csv("https://osf.io/download/2qd5k/")[c("value", "color")]
 coltab(lc92) = coltb
 coltab(lc18) = coltb
-```
-
-```{r}
 plot(c(lc92, lc18))
 ```
+
+For the examples below, we will crop the original data to a smaller area of 1000 by 1000 cells.
 
 ```{r}
 lc92 = crop(lc92, ext(-7e6, -67e5, -13e5, -1e6))
 lc18 = crop(lc18, ext(-7e6, -67e5, -13e5, -1e6))
-```
-
-```{r}
 plot(c(lc92, lc18))
 ```
 
+This area was mostly covered by the forest (green color) in 1992, but in 2018, it was mostly covered by  agriculture (yellow).
+
+## Local spatial pattern signature
+
+The main function in the **motifmw** package is `lsp_signature_mw()`, which calculates the local spatial pattern signature (called a co-occurrence vector, cove, learn more at <https://jakubnowosad.com/comat/articles/coma.html>) of a raster dataset using a moving window approach.
+The function requires two arguments: `x` -- a raster dataset, and `window` -- a matrix that defines the shape and size of the moving window.
+
 ## Square window
 
+Let's start with an example using a square window of size 11 by 11 cells, which can be defined with the `matrix()` function.
+This means that a spatial signature for each cell will be calculated based on the 11 by 11 cells around it (5 cells in each direction).
+
 ```{r}
-window_size = 51
+window_size = 21
 window = matrix(1, nrow = window_size, ncol = window_size)
 plot(rast(window))
 ```
 
-```{r}
-system.time({
-  lc92s = motifmw::lsp_signature_mw(x = lc92, window = window)
-  lc18s = motifmw::lsp_signature_mw(x = lc18, window = window)
-  lc_compare = spq_compare(lc92s, lc18s, dist_fun = "jensen-shannon")
-})
-```
+Next, we calculate the local spatial pattern signature for both land cover raster datasets using the `lsp_signature_mw()` function.
+This operation may take about a minute as we need to calculate the spatial signature in the 21 by 21 cells window for each of the 1,000,000 cells in the raster dataset.^[The calculation time would increase with the number of cells in the raster dataset and the size of the window.]
 
 ```{r}
+lc92s = motifmw::lsp_signature_mw(x = lc92, window = window)
+lc18s = motifmw::lsp_signature_mw(x = lc18, window = window)
+```
+
+The output of the `lsp_signature_mw()` function in this case is a raster dataset with 28 layers, where each layer represents a different part of the spatial signature.
+
+Finally, we can compare the spatial patterns of the two land cover raster datasets using the `spq_compare()` function from the **spquery** package.
+This function calculates the Jensen-Shannon divergence between the two spatial signatures, which is a measure of the similarity between two probability distributions.
+The lower the value, the more similar the spatial patterns of the two raster datasets.^[To be precise, in this case lower the value, the fewer changes occur between 1992 and 2018.]
+
+```{r}
+lc_compare = spq_compare(lc92s, lc18s, dist_fun = "jensen-shannon")
 plot(lc_compare)
 ```
 
 ## Circle window
 
+Although the square window is the most common choice, it is not the best option in all cases: it uses values from the corners of the window, which are further away from the center cell.
+An alternative is to use a circular window, which can be created using the `focalMat()` function from the **terra** package.
+Here, we create a circular window with a radius of 10 cells.
+
 ```{r}
-window2 = focalMat(rast(window), 25, type = "circle")
+window2 = focalMat(rast(window), d = 10, type = "circle", fillNA = TRUE)
 window2[window2 > 0] = 1
-window2[window2 == 0] = NA
 plot(rast(window2))
 ```
 
+The next steps are the same as before:
+
+1. we calculate the local spatial pattern signature for both land cover raster datasets using the `lsp_signature_mw()` function 
+2. we compare the spatial patterns of the two land cover raster datasets using the `spq_compare()` function
+
 ```{r}
-system.time({
 lc92s2 = lsp_signature_mw(x = lc92, window = window2)
 lc18s2 = lsp_signature_mw(x = lc18, window = window2)
 lc_compare2 = spq_compare(lc92s2, lc18s2, dist_fun = "jensen-shannon")
-})
+plot(lc_compare2)
 ```
 
+The resulting map is similar to the one obtained using the square window, but some differences can be observed.
+We can see them better by plotting the difference between the two maps.
+
 ```{r}
-plot(c(lc_compare, lc_compare2))
 plot(c(lc_compare - lc_compare2))
 ```
 
-## Comparison to the slower approach
+## Summary
+
+The **motifmw** package allows calculation of the local spatial pattern signature of a raster dataset using a moving window approach.
+It can be then used to compare changes in spatial patterns between two raster datasets, as demonstrated in this vignette.
+This package can also be used to extract the spatial pattern signature of a raster dataset for further analysis, such as using machine learning.
+
+The package is experimental, and any comments and suggestions at <https://github.com/Nowosad/motifmw/issues> are welcome.
 
 ```{r}
+#| echo: false
+#| eval: false
+# Comparison to the slower approach (3-5 times slower)
 calculate_cove_focal = function(landscape_values, raster_window) {
   extract_cove = function(x, classes){
     comat::get_cove(comat::get_coma(x, classes = classes), ordered = FALSE, normalization = "pdf")
   }
-  raster_window[!is.na(raster_window)] <- landscape_values[!is.na(raster_window)]
+  raster_window[!is.na(raster_window)] = landscape_values[!is.na(raster_window)]
   result = extract_cove(x = raster_window, classes = 1:9)
   return(result)
 }
 system.time({
-lc92sb = terra::focal(x = lc92, w = dim(window), silent = FALSE, fun = calculate_cove_focal, raster_window = window)
-lc18sb = terra::focal(x = lc18, w = dim(window), silent = FALSE, fun = calculate_cove_focal, raster_window = window)
+lc92sb = terra::focal(x = lc92, w = dim(window), silent = FALSE, 
+                      fun = calculate_cove_focal, raster_window = window)
+lc18sb = terra::focal(x = lc18, w = dim(window), silent = FALSE, 
+                      fun = calculate_cove_focal, raster_window = window)
 lc_compare1b = spq_compare(lc92sb, lc18sb, dist_fun = "jensen-shannon")
 })
-```
-
-```{r}
-plot(c(lc_compare, lc_compare1b))
 plot(c(lc_compare - lc_compare1b))
-```
-
-```{r}
-# c1d1 = resample(c1["dist"], lc_compare)
-# c1d2 = resample(c1["dist"], lc_compare, method = "near")
 ```
