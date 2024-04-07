@@ -65,7 +65,7 @@
                         <h4 data-toc-skip class="author">Jakub
 Nowosad</h4>
             
-            <h4 data-toc-skip class="date">2024-01-20</h4>
+            <h4 data-toc-skip class="date">2024-04-07</h4>
       
       
       <div class="d-none name"><code>Introduction.Rmd</code></div>
@@ -73,141 +73,151 @@ Nowosad</h4>
 
     
     
+<p>The <strong>motifmw</strong> package provides a possibility to
+calculate the local spatial pattern signature of a raster dataset using
+a moving window approach. The spatial signature is a vector of numbers
+that describes the spatial pattern of a raster dataset, which can be
+used, for example, to compare the spatial patterns of two raster
+datasets. This vignette demonstrates how to use the
+<strong>motifmw</strong> together with another package called
+<strong>spquery</strong> to compare the spatial patterns of two land
+cover raster datasets using a moving window approach.</p>
+<div class="section level2">
+<h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
+</h2>
+<p>To reproduce the code in this vignette, you need to install just
+three packages: <strong>motifmw</strong>, <strong>spquery</strong>, and
+<strong>terra</strong>. The first two packages can be installed from
+GitHub using the <code>remotes</code> package, while the
+<strong>terra</strong> package can be installed from CRAN.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># remotes::install_github("nowosad/motifmw")</span></span>
-<span><span class="co"># remotes::install_github("nowosad/spquery")</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="http://jakubnowosad.com/motifmw/">motifmw</a></span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"nowosad/motifmw"</span><span class="op">)</span></span>
+<span><span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"nowosad/spquery"</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="packages-and-data">Packages and data<a class="anchor" aria-label="anchor" href="#packages-and-data"></a>
+</h2>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="http://jakubnowosad.com/motifmw/">motifmw</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">spquery</span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rspatial.org/" class="external-link">terra</a></span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">lc92</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/terra/man/rast.html" class="external-link">rast</a></span><span class="op">(</span><span class="st">"https://osf.io/download/tjzwe/"</span><span class="op">)</span></span>
-<span><span class="va">lc18</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/terra/man/rast.html" class="external-link">rast</a></span><span class="op">(</span><span class="st">"https://osf.io/download/wdzy6/"</span><span class="op">)</span></span></code></pre></div>
+<p>The <strong>motifmw</strong> approach is suitable for categorical
+raster datasets. Here, we will use two ESA land cover raster datasets:
+one from 1992 and the other from 2018. The datasets and their color
+tables are available from the Open Science Framework (OSF)
+repository.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">coltb</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.csv</a></span><span class="op">(</span><span class="st">"https://osf.io/download/2qd5k/"</span><span class="op">)</span></span>
-<span><span class="va">coltb</span> <span class="op">=</span> <span class="va">coltb</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"value"</span>, <span class="st">"color"</span><span class="op">)</span><span class="op">]</span></span>
-<span><span class="fu"><a href="https://rdrr.io/pkg/terra/man/colors.html" class="external-link">coltab</a></span><span class="op">(</span><span class="va">lc92</span><span class="op">)</span> <span class="op">=</span> <span class="va">coltb</span></span>
-<span><span class="fu"><a href="https://rdrr.io/pkg/terra/man/colors.html" class="external-link">coltab</a></span><span class="op">(</span><span class="va">lc18</span><span class="op">)</span> <span class="op">=</span> <span class="va">coltb</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">lc92</span> <span class="op">=</span> <span class="fu"><a href="https://rspatial.github.io/terra/reference/rast.html" class="external-link">rast</a></span><span class="op">(</span><span class="st">"https://osf.io/download/tjzwe/"</span><span class="op">)</span></span>
+<span><span class="va">lc18</span> <span class="op">=</span> <span class="fu"><a href="https://rspatial.github.io/terra/reference/rast.html" class="external-link">rast</a></span><span class="op">(</span><span class="st">"https://osf.io/download/wdzy6/"</span><span class="op">)</span></span>
+<span><span class="va">coltb</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.csv</a></span><span class="op">(</span><span class="st">"https://osf.io/download/2qd5k/"</span><span class="op">)</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"value"</span>, <span class="st">"color"</span><span class="op">)</span><span class="op">]</span></span>
+<span><span class="fu"><a href="https://rspatial.github.io/terra/reference/colors.html" class="external-link">coltab</a></span><span class="op">(</span><span class="va">lc92</span><span class="op">)</span> <span class="op">=</span> <span class="va">coltb</span></span>
+<span><span class="fu"><a href="https://rspatial.github.io/terra/reference/colors.html" class="external-link">coltab</a></span><span class="op">(</span><span class="va">lc18</span><span class="op">)</span> <span class="op">=</span> <span class="va">coltb</span></span>
+<span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">lc92</span>, <span class="va">lc18</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p><img src="figures/unnamed-chunk-3-1.png"></p>
+<p>For the examples below, we will crop the original data to a smaller
+area of 1000 by 1000 cells.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/terra/man/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">lc92</span>, <span class="va">lc18</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<div class="figure">
-<img src="figures/unnamed-chunk-4-1.png" alt=""><p class="caption">plot of chunk unnamed-chunk-4</p>
+<code class="sourceCode R"><span><span class="va">lc92</span> <span class="op">=</span> <span class="fu"><a href="https://rspatial.github.io/terra/reference/crop.html" class="external-link">crop</a></span><span class="op">(</span><span class="va">lc92</span>, <span class="fu"><a href="https://rspatial.github.io/terra/reference/ext.html" class="external-link">ext</a></span><span class="op">(</span><span class="op">-</span><span class="fl">7e6</span>, <span class="op">-</span><span class="fl">67e5</span>, <span class="op">-</span><span class="fl">13e5</span>, <span class="op">-</span><span class="fl">1e6</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">lc18</span> <span class="op">=</span> <span class="fu"><a href="https://rspatial.github.io/terra/reference/crop.html" class="external-link">crop</a></span><span class="op">(</span><span class="va">lc18</span>, <span class="fu"><a href="https://rspatial.github.io/terra/reference/ext.html" class="external-link">ext</a></span><span class="op">(</span><span class="op">-</span><span class="fl">7e6</span>, <span class="op">-</span><span class="fl">67e5</span>, <span class="op">-</span><span class="fl">13e5</span>, <span class="op">-</span><span class="fl">1e6</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">lc92</span>, <span class="va">lc18</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p><img src="figures/unnamed-chunk-4-1.png"></p>
+<p>This area was mostly covered by the forest (green color) in 1992, but
+in 2018, it was mostly covered by agriculture (yellow).</p>
 </div>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">lc92</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/terra/man/crop.html" class="external-link">crop</a></span><span class="op">(</span><span class="va">lc92</span>, <span class="fu"><a href="https://rdrr.io/pkg/terra/man/ext.html" class="external-link">ext</a></span><span class="op">(</span><span class="op">-</span><span class="fl">7e6</span>, <span class="op">-</span><span class="fl">67e5</span>, <span class="op">-</span><span class="fl">13e5</span>, <span class="op">-</span><span class="fl">1e6</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">lc18</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/terra/man/crop.html" class="external-link">crop</a></span><span class="op">(</span><span class="va">lc18</span>, <span class="fu"><a href="https://rdrr.io/pkg/terra/man/ext.html" class="external-link">ext</a></span><span class="op">(</span><span class="op">-</span><span class="fl">7e6</span>, <span class="op">-</span><span class="fl">67e5</span>, <span class="op">-</span><span class="fl">13e5</span>, <span class="op">-</span><span class="fl">1e6</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/terra/man/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">lc92</span>, <span class="va">lc18</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<div class="figure">
-<img src="figures/unnamed-chunk-6-1.png" alt=""><p class="caption">plot of chunk unnamed-chunk-6</p>
+<div class="section level2">
+<h2 id="local-spatial-pattern-signature">Local spatial pattern signature<a class="anchor" aria-label="anchor" href="#local-spatial-pattern-signature"></a>
+</h2>
+<p>The main function in the <strong>motifmw</strong> package is
+<code><a href="../reference/lsp_signature_mw.html">lsp_signature_mw()</a></code>, which calculates the local spatial
+pattern signature (called a co-occurrence vector, cove, learn more at <a href="https://jakubnowosad.com/comat/articles/coma.html" class="external-link uri">https://jakubnowosad.com/comat/articles/coma.html</a>) of a
+raster dataset using a moving window approach. The function requires two
+arguments: <code>x</code> – a raster dataset, and <code>window</code> –
+a matrix that defines the shape and size of the moving window.</p>
 </div>
 <div class="section level2">
 <h2 id="square-window">Square window<a class="anchor" aria-label="anchor" href="#square-window"></a>
 </h2>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">window_size</span> <span class="op">=</span> <span class="fl">51</span></span>
+<p>Let’s start with an example using a square window of size 11 by 11
+cells, which can be defined with the <code><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix()</a></code> function.
+This means that a spatial signature for each cell will be calculated
+based on the 11 by 11 cells around it (5 cells in each direction).</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">window_size</span> <span class="op">=</span> <span class="fl">21</span></span>
 <span><span class="va">window</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fl">1</span>, nrow <span class="op">=</span> <span class="va">window_size</span>, ncol <span class="op">=</span> <span class="va">window_size</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/pkg/terra/man/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/terra/man/rast.html" class="external-link">rast</a></span><span class="op">(</span><span class="va">window</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<div class="figure">
-<img src="figures/unnamed-chunk-7-1.png" alt=""><p class="caption">plot of chunk unnamed-chunk-7</p>
-</div>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">system.time</span>({</span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  lc92s <span class="ot">=</span> motifmw<span class="sc">::</span><span class="fu">lsp_signature_mw</span>(<span class="at">x =</span> lc92, <span class="at">window =</span> window)</span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  lc18s <span class="ot">=</span> motifmw<span class="sc">::</span><span class="fu">lsp_signature_mw</span>(<span class="at">x =</span> lc18, <span class="at">window =</span> window)</span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  lc_compare <span class="ot">=</span> <span class="fu">spq_compare</span>(lc92s, lc18s, <span class="at">dist_fun =</span> <span class="st">"jensen-shannon"</span>)</span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>})</span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="sc">|---------</span><span class="er">|</span><span class="sc">---------</span><span class="er">|</span><span class="sc">---------</span><span class="er">|</span><span class="sc">---------</span><span class="er">|</span></span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="er">=========================================</span></span>
-<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>                                          </span>
-<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a><span class="er">|</span><span class="sc">---------</span><span class="er">|</span><span class="sc">---------</span><span class="er">|</span><span class="sc">---------</span><span class="er">|</span><span class="sc">---------</span><span class="er">|</span></span>
-<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a><span class="er">=========================================</span></span>
-<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>                                          </span>
-<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    user  system elapsed </span></span>
-<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 277.539  28.267 306.362</span></span></code></pre></div>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/terra/man/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">lc_compare</span><span class="op">)</span></span></code></pre></div>
-<div class="figure">
-<img src="figures/unnamed-chunk-9-1.png" alt=""><p class="caption">plot of chunk unnamed-chunk-9</p>
-</div>
+<span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/rast.html" class="external-link">rast</a></span><span class="op">(</span><span class="va">window</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p><img src="figures/unnamed-chunk-5-1.png"></p>
+<p>Next, we calculate the local spatial pattern signature for both land
+cover raster datasets using the <code><a href="../reference/lsp_signature_mw.html">lsp_signature_mw()</a></code>
+function. This operation may take about a minute as we need to calculate
+the spatial signature in the 21 by 21 cells window for each of the
+1,000,000 cells in the raster dataset.<a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content="&lt;p&gt;The calculation time would increase with the number of
+cells in the raster dataset and the size of the window.&lt;/p&gt;"><sup>1</sup></a></p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">lc92s</span> <span class="op">=</span> <span class="fu">motifmw</span><span class="fu">::</span><span class="fu"><a href="../reference/lsp_signature_mw.html">lsp_signature_mw</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">lc92</span>, window <span class="op">=</span> <span class="va">window</span><span class="op">)</span></span>
+<span><span class="va">lc18s</span> <span class="op">=</span> <span class="fu">motifmw</span><span class="fu">::</span><span class="fu"><a href="../reference/lsp_signature_mw.html">lsp_signature_mw</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">lc18</span>, window <span class="op">=</span> <span class="va">window</span><span class="op">)</span></span></code></pre></div>
+<p>The output of the <code><a href="../reference/lsp_signature_mw.html">lsp_signature_mw()</a></code> function in this
+case is a raster dataset with 28 layers, where each layer represents a
+different part of the spatial signature.</p>
+<p>Finally, we can compare the spatial patterns of the two land cover
+raster datasets using the <code>spq_compare()</code> function from the
+<strong>spquery</strong> package. This function calculates the
+Jensen-Shannon divergence between the two spatial signatures, which is a
+measure of the similarity between two probability distributions. The
+lower the value, the more similar the spatial patterns of the two raster
+datasets.<a class="footnote-ref" tabindex="0" data-bs-toggle="popover" data-bs-content="&lt;p&gt;To be precise, in this case lower the value, the fewer
+changes occur between 1992 and 2018.&lt;/p&gt;"><sup>2</sup></a></p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">lc_compare</span> <span class="op">=</span> <span class="fu">spq_compare</span><span class="op">(</span><span class="va">lc92s</span>, <span class="va">lc18s</span>, dist_fun <span class="op">=</span> <span class="st">"jensen-shannon"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">lc_compare</span><span class="op">)</span></span></code></pre></div>
+<p><img src="figures/unnamed-chunk-7-1.png"></p>
 </div>
 <div class="section level2">
 <h2 id="circle-window">Circle window<a class="anchor" aria-label="anchor" href="#circle-window"></a>
 </h2>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">window2</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/terra/man/focalMat.html" class="external-link">focalMat</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/terra/man/rast.html" class="external-link">rast</a></span><span class="op">(</span><span class="va">window</span><span class="op">)</span>, <span class="fl">25</span>, type <span class="op">=</span> <span class="st">"circle"</span><span class="op">)</span></span>
+<p>Although the square window is the most common choice, it is not the
+best option in all cases: it uses values from the corners of the window,
+which are further away from the center cell. An alternative is to use a
+circular window, which can be created using the <code><a href="https://rspatial.github.io/terra/reference/focalMat.html" class="external-link">focalMat()</a></code>
+function from the <strong>terra</strong> package. Here, we create a
+circular window with a radius of 10 cells.</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">window2</span> <span class="op">=</span> <span class="fu"><a href="https://rspatial.github.io/terra/reference/focalMat.html" class="external-link">focalMat</a></span><span class="op">(</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/rast.html" class="external-link">rast</a></span><span class="op">(</span><span class="va">window</span><span class="op">)</span>, d <span class="op">=</span> <span class="fl">10</span>, type <span class="op">=</span> <span class="st">"circle"</span>, fillNA <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="va">window2</span><span class="op">[</span><span class="va">window2</span> <span class="op">&gt;</span> <span class="fl">0</span><span class="op">]</span> <span class="op">=</span> <span class="fl">1</span></span>
-<span><span class="va">window2</span><span class="op">[</span><span class="va">window2</span> <span class="op">==</span> <span class="fl">0</span><span class="op">]</span> <span class="op">=</span> <span class="cn">NA</span></span>
-<span><span class="fu"><a href="https://rdrr.io/pkg/terra/man/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/terra/man/rast.html" class="external-link">rast</a></span><span class="op">(</span><span class="va">window2</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<div class="figure">
-<img src="figures/unnamed-chunk-10-1.png" alt=""><p class="caption">plot of chunk unnamed-chunk-10</p>
-</div>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">system.time</span>({</span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>lc92s2 <span class="ot">=</span> <span class="fu">lsp_signature_mw</span>(<span class="at">x =</span> lc92, <span class="at">window =</span> window2)</span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>lc18s2 <span class="ot">=</span> <span class="fu">lsp_signature_mw</span>(<span class="at">x =</span> lc18, <span class="at">window =</span> window2)</span>
-<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>lc_compare2 <span class="ot">=</span> <span class="fu">spq_compare</span>(lc92s2, lc18s2, <span class="at">dist_fun =</span> <span class="st">"jensen-shannon"</span>)</span>
-<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>})</span>
-<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a><span class="sc">|---------</span><span class="er">|</span><span class="sc">---------</span><span class="er">|</span><span class="sc">---------</span><span class="er">|</span><span class="sc">---------</span><span class="er">|</span></span>
-<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a><span class="er">=========================================</span></span>
-<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>                                          </span>
-<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a><span class="er">|</span><span class="sc">---------</span><span class="er">|</span><span class="sc">---------</span><span class="er">|</span><span class="sc">---------</span><span class="er">|</span><span class="sc">---------</span><span class="er">|</span></span>
-<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a><span class="er">=========================================</span></span>
-<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>                                          </span>
-<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    user  system elapsed </span></span>
-<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 254.716  29.828 285.009</span></span></code></pre></div>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/terra/man/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">lc_compare</span>, <span class="va">lc_compare2</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<div class="figure">
-<img src="figures/unnamed-chunk-12-1.png" alt=""><p class="caption">plot of chunk unnamed-chunk-12</p>
-</div>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/terra/man/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">lc_compare</span> <span class="op">-</span> <span class="va">lc_compare2</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<div class="figure">
-<img src="figures/unnamed-chunk-12-2.png" alt=""><p class="caption">plot of chunk unnamed-chunk-12</p>
-</div>
+<span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="https://rspatial.github.io/terra/reference/rast.html" class="external-link">rast</a></span><span class="op">(</span><span class="va">window2</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p><img src="figures/unnamed-chunk-8-1.png"></p>
+<p>The next steps are the same as before:</p>
+<ol style="list-style-type: decimal">
+<li>we calculate the local spatial pattern signature for both land cover
+raster datasets using the <code><a href="../reference/lsp_signature_mw.html">lsp_signature_mw()</a></code> function</li>
+<li>we compare the spatial patterns of the two land cover raster
+datasets using the <code>spq_compare()</code> function</li>
+</ol>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">lc92s2</span> <span class="op">=</span> <span class="fu"><a href="../reference/lsp_signature_mw.html">lsp_signature_mw</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">lc92</span>, window <span class="op">=</span> <span class="va">window2</span><span class="op">)</span></span>
+<span><span class="va">lc18s2</span> <span class="op">=</span> <span class="fu"><a href="../reference/lsp_signature_mw.html">lsp_signature_mw</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">lc18</span>, window <span class="op">=</span> <span class="va">window2</span><span class="op">)</span></span>
+<span><span class="va">lc_compare2</span> <span class="op">=</span> <span class="fu">spq_compare</span><span class="op">(</span><span class="va">lc92s2</span>, <span class="va">lc18s2</span>, dist_fun <span class="op">=</span> <span class="st">"jensen-shannon"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">lc_compare2</span><span class="op">)</span></span></code></pre></div>
+<p><img src="figures/unnamed-chunk-9-1.png"></p>
+<p>The resulting map is similar to the one obtained using the square
+window, but some differences can be observed. We can see them better by
+plotting the difference between the two maps.</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">lc_compare</span> <span class="op">-</span> <span class="va">lc_compare2</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p><img src="figures/unnamed-chunk-10-1.png"></p>
 </div>
 <div class="section level2">
-<h2 id="comparison-to-the-slower-approach">Comparison to the slower approach<a class="anchor" aria-label="anchor" href="#comparison-to-the-slower-approach"></a>
+<h2 id="summary">Summary<a class="anchor" aria-label="anchor" href="#summary"></a>
 </h2>
-<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>calculate_cove_focal <span class="ot">=</span> <span class="cf">function</span>(landscape_values, raster_window) {</span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  extract_cove <span class="ot">=</span> <span class="cf">function</span>(x, classes){</span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>    comat<span class="sc">::</span><span class="fu">get_cove</span>(comat<span class="sc">::</span><span class="fu">get_coma</span>(x, <span class="at">classes =</span> classes), <span class="at">ordered =</span> <span class="cn">FALSE</span>, <span class="at">normalization =</span> <span class="st">"pdf"</span>)</span>
-<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>  raster_window[<span class="sc">!</span><span class="fu">is.na</span>(raster_window)] <span class="ot">&lt;-</span> landscape_values[<span class="sc">!</span><span class="fu">is.na</span>(raster_window)]</span>
-<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>  result <span class="ot">=</span> <span class="fu">extract_cove</span>(<span class="at">x =</span> raster_window, <span class="at">classes =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">9</span>)</span>
-<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(result)</span>
-<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a><span class="fu">system.time</span>({</span>
-<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>lc92sb <span class="ot">=</span> terra<span class="sc">::</span><span class="fu">focal</span>(<span class="at">x =</span> lc92, <span class="at">w =</span> <span class="fu">dim</span>(window), <span class="at">silent =</span> <span class="cn">FALSE</span>, <span class="at">fun =</span> calculate_cove_focal, <span class="at">raster_window =</span> window)</span>
-<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>lc18sb <span class="ot">=</span> terra<span class="sc">::</span><span class="fu">focal</span>(<span class="at">x =</span> lc18, <span class="at">w =</span> <span class="fu">dim</span>(window), <span class="at">silent =</span> <span class="cn">FALSE</span>, <span class="at">fun =</span> calculate_cove_focal, <span class="at">raster_window =</span> window)</span>
-<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>lc_compare1b <span class="ot">=</span> <span class="fu">spq_compare</span>(lc92sb, lc18sb, <span class="at">dist_fun =</span> <span class="st">"jensen-shannon"</span>)</span>
-<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>})</span>
-<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a><span class="sc">|---------</span><span class="er">|</span><span class="sc">---------</span><span class="er">|</span><span class="sc">---------</span><span class="er">|</span><span class="sc">---------</span><span class="er">|</span></span>
-<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a><span class="er">=========================================</span></span>
-<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a>                                          </span>
-<span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-19"><a href="#cb14-19" aria-hidden="true" tabindex="-1"></a><span class="er">|</span><span class="sc">---------</span><span class="er">|</span><span class="sc">---------</span><span class="er">|</span><span class="sc">---------</span><span class="er">|</span><span class="sc">---------</span><span class="er">|</span></span>
-<span id="cb14-20"><a href="#cb14-20" aria-hidden="true" tabindex="-1"></a><span class="er">=========================================</span></span>
-<span id="cb14-21"><a href="#cb14-21" aria-hidden="true" tabindex="-1"></a>                                          </span>
-<span id="cb14-22"><a href="#cb14-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    user  system elapsed </span></span>
-<span id="cb14-23"><a href="#cb14-23" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 529.393  41.362 572.468</span></span></code></pre></div>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/terra/man/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">lc_compare</span>, <span class="va">lc_compare1b</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<div class="figure">
-<img src="figures/unnamed-chunk-14-1.png" alt=""><p class="caption">plot of chunk unnamed-chunk-14</p>
+<p>The <strong>motifmw</strong> package allows calculation of the local
+spatial pattern signature of a raster dataset using a moving window
+approach. It can be then used to compare changes in spatial patterns
+between two raster datasets, as demonstrated in this vignette. This
+package can also be used to extract the spatial pattern signature of a
+raster dataset for further analysis, such as using machine learning.</p>
+<p>The package is experimental, and any comments and suggestions at <a href="https://github.com/Nowosad/motifmw/issues" class="external-link uri">https://github.com/Nowosad/motifmw/issues</a> are
+welcome.</p>
 </div>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/terra/man/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">lc_compare</span> <span class="op">-</span> <span class="va">lc_compare1b</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<div class="figure">
-<img src="figures/unnamed-chunk-14-2.png" alt=""><p class="caption">plot of chunk unnamed-chunk-14</p>
-</div>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># c1d1 = resample(c1["dist"], lc_compare)</span></span>
-<span><span class="co"># c1d2 = resample(c1["dist"], lc_compare, method = "near")</span></span></code></pre></div>
-</div>
+
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
     </nav></aside>
 </div>
