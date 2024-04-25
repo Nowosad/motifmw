@@ -28,5 +28,5 @@ Suggests:
     testthat (>= 3.0.0)
 VignetteBuilder: knitr
 Config/testthat/edition: 3
-URL: http://jakubnowosad.com/motifmw/, https://github.com/Nowosad/motifmw
+URL: http://jakubnowosad.com/motifmw/
 BugReports: https://github.com/Nowosad/motifmw/issues

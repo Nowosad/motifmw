@@ -12,6 +12,7 @@ Describes spatial patterns of categorical raster data for any defined moving win
 Useful links:
 \itemize{
   \item \url{http://jakubnowosad.com/motifmw/}
+  \item Report bugs at \url{https://github.com/Nowosad/motifmw/issues}
 }
 
 }
